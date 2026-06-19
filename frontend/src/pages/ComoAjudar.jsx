@@ -30,9 +30,6 @@ function ComoAjudar() {
             </strong>
             <br />
             <a
-              href="https://nubank.com.br/cobrar/pix/26644168000123"
-              target="_blank"
-              rel="noopener noreferrer"
             >
               26.644.168/0001-23
             </a>
