@@ -32,7 +32,23 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # em produção troca o localhost pelo domínio real do site
-CORS(app, origins=os.environ.get("FRONTEND_ORIGIN", "http://localhost:5173"))
+# Libera o frontend local e os domínios definidos em FRONTEND_ORIGIN.
+# No Render, use por exemplo:
+# FRONTEND_ORIGIN=https://ong-amadas.vercel.app
+origens_permitidas = [
+    origem.strip()
+    for origem in os.environ.get(
+        "FRONTEND_ORIGIN",
+        "http://localhost:5173,http://127.0.0.1:5173",
+    ).split(",")
+    if origem.strip()
+]
+
+CORS(
+    app,
+    resources={r"/*": {"origins": origens_permitidas}},
+    supports_credentials=False,
+)
 
 db = SQLAlchemy(app)
 
@@ -453,13 +469,17 @@ def remover_evento(id_evento):
     return jsonify({"ok": True, "msg": "Evento removido."})
 
 
-if __name__ == "__main__":
-    # cria as tabelas no banco se ainda não existirem (tipo uma migração automática)
-    with app.app_context():
-        os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
-        db.create_all()
-        print("Banco de dados pronto.")
+# Cria a pasta de uploads e as tabelas quando o módulo é carregado.
+# Isso funciona tanto com "python main.py" quanto com "gunicorn main:app".
+with app.app_context():
+    os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+    db.create_all()
+    print("Banco de dados pronto.")
 
-    # debug=True recarrega o servidor sozinho quando salvo o arquivo — muito útil pra dev
-    # MEXER AQUI TAMBEM QUANDO FOR PARA PRODUÇÃO
-    app.run(debug=os.environ.get("FLASK_DEBUG", "false").lower() == "true", port=5000)
+
+if __name__ == "__main__":
+    app.run(
+        debug=os.environ.get("FLASK_DEBUG", "false").lower() == "true",
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 5000)),
+    )
