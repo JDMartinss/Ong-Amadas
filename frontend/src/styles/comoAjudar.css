@@ -1,0 +1,23 @@
+.page-content {
+  margin-top: var(--navbar-height);
+  min-height: calc(100vh - var(--navbar-height));
+  padding: var(--space-md) var(--space-md) var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.page-content > .container {
+  margin-top: var(--space-lg);
+}
+
+.donation-card {
+  width: 92%;
+  max-width: var(--container-max);
+}
+
+@media (max-width: 768px) {
+  .donation-card {
+    width: 94%;
+  }
+}
